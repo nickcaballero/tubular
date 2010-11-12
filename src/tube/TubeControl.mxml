@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+		   width="562"
+		   height="130"
+		   backgroundColor="#B9B9B9"
+		   initialize="init();"
+		   borderColor="#333333"
+		   borderStyle="solid"
+		   left="10"
+		   right="10">
+	<mx:Script>
+		<![CDATA[
+			import media.Source;
+			import mx.core.UIComponent;
+			import mx.graphics.ImageSnapshot;
+			import media.youtube.YouTubeSource;
+			import mx.core.DragSource;
+			import mx.events.DragEvent;
+			import mx.managers.DragManager;
+
+			[Bindable]
+			public var tubeHandler:TubeHandler;
+
+			private function init():void
+			{
+				tubeHandler=new TubeHandler(this);
+			}
+		]]>
+	</mx:Script>
+	<mx:dragEnter>
+		<![CDATA[
+			if (DragEvent(event).dragSource.hasFormat("tubeSource"))
+			{
+				if (this != DragEvent(event).dragInitiator && !this.contains(UIComponent(DragEvent(event).dragInitiator)))
+				{
+					DragManager.acceptDragDrop(this);
+					DragManager.showFeedback(DragManager.LINK);
+				}
+			}
+		]]>
+	</mx:dragEnter>
+	<mx:dragDrop>
+		<![CDATA[
+			var source:Source=Source(DragEvent(event).dragSource.dataForFormat("tubeSource"));
+			tubeHandler.unbindStream();
+			tubeHandler.setSource(source);
+			if (!DragEvent(event).dragSource.hasFormat("tubeClone"))
+			{
+				tubeHandler.bindNewStream();
+			}
+			else
+			{
+				var bindingHandler:TubeHandler=TubeHandler(DragEvent(event).dragSource.dataForFormat("tubeClone"));
+				bindingHandler.bindHandler(tubeHandler);
+			}
+		]]>
+	</mx:dragDrop>
+	<mx:Canvas x="10"
+			   y="27"
+			   width="13"
+			   height="56"
+			   buttonMode="true"
+			   borderStyle="solid"
+			   borderColor="#404040"
+			   backgroundColor="#C0C0C0"
+			   id="tubeHandle">
+		<mx:mouseDown>
+			<![CDATA[
+				if (tubeHandler.ns == null && !tubeHandler.binded)
+				{
+					return;
+				}
+				var dragData:DragSource=new DragSource();
+				dragData.addData(tubeHandler, "tubeClone");
+				dragData.addData(tubeHandler.source, "tubeSource");
+				DragManager.doDrag(this, dragData, event, tubeHandle, 31, 10);
+			]]>
+		</mx:mouseDown>
+	</mx:Canvas>
+	<mx:Canvas x="287"
+			   y="10"
+			   width="129"
+			   height="90"
+			   borderStyle="solid"
+			   borderColor="#333333">
+		<mx:Button x="10"
+				   y="36"
+				   label="{tubeHandler.state==TubeHandler.PLAYING?'||':'>'}"
+				   enabled="{tubeHandler.ns!=null||tubeHandler.binded}"
+				   width="49"
+				   fontSize="8"
+				   height="16">
+			<mx:click>
+				<![CDATA[
+					if (tubeHandler.state == TubeHandler.PLAYING)
+					{
+						tubeHandler.pauseStream();
+					}
+					else if (tubeHandler.state == TubeHandler.PAUSED)
+					{
+						tubeHandler.resumeStream();
+					}
+					else
+					{
+						tubeHandler.playStream();
+					}
+				]]>
+			</mx:click>
+		</mx:Button>
+		<mx:HSlider x="24"
+					y="66"
+					minimum="-1"
+					maximum="1"
+					value="{tubeHandler.bindingHandler.balance}"
+					enabled="{tubeHandler.ns!=null||tubeHandler.binded}"
+					id="balanceSlider"
+					liveDragging="true"
+					width="95"
+					height="13"
+					toolTip="Balance">
+			<mx:change>
+				<![CDATA[
+					tubeHandler.setBalance(balanceSlider.value);
+				]]>
+			</mx:change>
+		</mx:HSlider>
+		<mx:HSlider x="24"
+					y="52"
+					minimum="0"
+					maximum="1"
+					value="{tubeHandler.bindingHandler.volume}"
+					enabled="{tubeHandler.ns!=null||tubeHandler.binded}"
+					id="volumeSlider"
+					liveDragging="true"
+					width="95"
+					height="13"
+					toolTip="Volume">
+			<mx:change>
+				<![CDATA[
+					tubeHandler.setVolume(volumeSlider.value);
+				]]>
+			</mx:change>
+		</mx:HSlider>
+		<mx:Label x="10"
+				  y="2"
+				  text="{tubeHandler.source.tubeId}"
+				  color="{tubeHandler.bindingHandler.buffering?0xFF0000:0x000000}"
+				  fontWeight="bold"
+				  textAlign="left"
+				  width="109"
+				  enabled="{tubeHandler.ns!=null||tubeHandler.binded}"
+				  fontSize="9"/>
+		<mx:Button x="67"
+				   y="35"
+				   label="#"
+				   width="50"
+				   enabled="{tubeHandler.ns!=null||tubeHandler.binded}"
+				   click="tubeHandler.stopStream();"
+				   height="17">
+		</mx:Button>
+		<mx:Label x="10"
+				  y="53"
+				  text="V"
+				  buttonMode="true"
+				  toolTip="{tubeHandler.bindingHandler.volume==0?'Unmute':'Mute'}"
+				  color="{tubeHandler.bindingHandler.volume==0?0xFF0000:0x000000}"
+				  enabled="{tubeHandler.ns!=null||tubeHandler.binded}">
+			<mx:click>
+				<![CDATA[
+					tubeHandler.toggleVolume();
+				]]>
+			</mx:click>
+		</mx:Label>
+		<mx:Label x="10"
+				  y="68"
+				  text="B"
+				  buttonMode="true"
+				  toolTip="Center audio"
+				  enabled="{tubeHandler.ns!=null||tubeHandler.binded}">
+
+			<mx:click>
+				<![CDATA[
+					balanceSlider.value=0;
+				]]>
+			</mx:click>
+		</mx:Label>
+		<mx:Button x="10"
+				   y="18"
+				   label="Clients: {tubeHandler.bindingHandler.bindCount}"
+				   enabled="{tubeHandler.ns!=null||tubeHandler.binded}"
+				   click="tubeHandler.unbindStream();"
+				   toolTip="Click to unbind"
+				   fontSize="8"
+				   height="16"
+				   width="107"
+				   textAlign="center"/>
+	</mx:Canvas>
+	<mx:Canvas x="31"
+			   y="10"
+			   width="120"
+			   height="90"
+			   backgroundColor="#000000"
+			   id="canvas1">
+		<mx:Image x="0"
+				  y="0"
+				  width="120"
+				  height="90"
+				  id="bindingPreview"
+				  source="{tubeHandler.outputImage}"
+				  scaleContent="true"/>
+	</mx:Canvas>
+	<mx:Canvas x="159"
+			   y="10"
+			   width="120"
+			   height="90"
+			   backgroundColor="#000000">
+		<mx:Image x="0"
+				  y="0"
+				  width="120"
+				  height="90"
+				  source="{tubeHandler.processedImage}"
+				  id="outputPreview"
+				  scaleContent="true"
+				  opaqueBackground="null"/>
+	</mx:Canvas>
+	<mx:Label x="10"
+			  y="108"
+			  text="{tubeHandler.index+1}: {tubeHandler.state}: {tubeHandler.source.tubeId} - buffer @ {tubeHandler.bindingHandler.bufferLength}"
+			  enabled="{tubeHandler.ns!=null||tubeHandler.binded}"/>
+	<mx:Label x="11"
+			  y="9"
+			  text="U"
+			  id="moveTubeUp"
+			  enabled="{tubeHandler.index!=0}"
+			  click="TubeHandler.shiftUp(this);"
+			  buttonMode="true">
+	</mx:Label>
+	<mx:Label x="11"
+			  y="87"
+			  text="D"
+			  id="moveTubeDown"
+			  enabled="{tubeHandler.index!=TubeHandler.tubes.length-1}"
+			  click="TubeHandler.shiftDown(this);"
+			  buttonMode="true">
+	</mx:Label>
+	<mx:Canvas x="424"
+			   y="10"
+			   width="126"
+			   height="90"
+			   borderStyle="solid"
+			   borderColor="#333333">
+		<mx:HSlider x="48"
+					y="9"
+					width="66"
+					minimum="0"
+					maximum="1"
+					id="alphaSlider"
+					value="{tubeHandler.alpha}"
+					liveDragging="true"
+					enabled="{tubeHandler.ns!=null||tubeHandler.binded}"
+					height="9">
+			<mx:change>
+				<![CDATA[
+					tubeHandler.setAlpha(alphaSlider.value);
+				]]>
+			</mx:change>
+		</mx:HSlider>
+		<mx:Label x="10"
+				  y="10"
+				  text="Alpha"
+				  fontSize="9"/>
+		<mx:Label x="10"
+				  y="31"
+				  text="Array"
+				  fontSize="9"/>
+		<mx:CheckBox x="10"
+					 y="56"
+					 label="Invert"
+					 id="invertFilter"
+					 selected="{tubeHandler.invertFilterEnabled}">
+			<mx:change>
+				<![CDATA[
+					tubeHandler.invertFilterEnabled=invertFilter.selected;
+				]]>
+			</mx:change>
+		</mx:CheckBox>
+		<mx:HSlider y="26"
+					x="48"
+					width="66"
+					minimum="1"
+					maximum="10"
+					id="repeatSlider"
+					value="{tubeHandler.repeaterFilter.amount}"
+					liveDragging="true"
+					enabled="{tubeHandler.ns!=null||tubeHandler.binded}"
+					snapInterval="1">
+			<mx:change>
+				<![CDATA[
+					tubeHandler.repeaterFilter.amount=repeatSlider.value;
+				]]>
+			</mx:change>
+		</mx:HSlider>
+	</mx:Canvas>
+</mx:Canvas>

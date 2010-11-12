@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Window xmlns:mx="http://www.adobe.com/2006/mxml"
+		   layout="absolute"
+		   width="400"
+		   height="300"
+		   xmlns:ns1="media.youtube.ui.*"
+		   title="Pool">
+	<mx:states>
+		<mx:State name="youtube">
+		<mx:SetProperty name="title" value="YouTube" />
+		<mx:AddChild position="lastChild">
+			<ns1:YouTubeList left="0" top="0" bottom="0" right="0">
+			</ns1:YouTubeList>
+		</mx:AddChild>
+		</mx:State>
+	</mx:states>
+	<mx:close>
+		<![CDATA[
+			 removeAllChildren();
+		]]>
+	</mx:close>
+</mx:Window>

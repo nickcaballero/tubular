@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+		   height="110"
+		   buttonMode="true"
+		   horizontalScrollPolicy="off"
+		   verticalScrollPolicy="off"
+		   width="382">
+	<mx:Script>
+		<![CDATA[
+			import mx.graphics.ImageSnapshot;
+			import media.youtube.YouTubeSource;
+			import mx.events.DragEvent;
+			import mx.managers.DragManager;
+			import mx.core.DragSource;
+			import mx.events.VideoEvent;
+			private var youtubeId:String;
+		]]>
+	</mx:Script>
+	<mx:Label text="{data.name}"
+			  right="10"
+			  height="18"
+			  y="10"
+			  left="159"
+			  textAlign="left"
+			  id="label2"/>
+	<mx:Label y="36"
+			  text="{data.author} - {data.durationFormatted}"
+			  fontSize="8"
+			  left="159"
+			  right="10"
+			  textAlign="left"
+			  id="label1"/>
+	<mx:Image x="31"
+			  y="10"
+			  width="120"
+			  height="90"
+			  id="videoImage"
+			  source="{data.videoImageURL}"
+			  scaleContent="true"
+			  autoLoad="true"
+			  buttonMode="true"
+			  enabled="{data.videoStreamURL!=null}"
+			  completeEffect="Fade">
+	</mx:Image>
+	<mx:TextArea text="{data.description}"
+				 wordWrap="true"
+				 editable="false"
+				 right="10"
+				 left="159"
+				 bottom="10"
+				 height="44"
+				 textAlign="left"/>
+	<mx:Canvas x="10"
+			   y="10"
+			   width="13"
+			   height="90"
+			   backgroundColor="{data.videoStreamURL!=null?0x44C84A:0xDB2525}"
+			   buttonMode="true"
+			   toolTip="{data.videoStreamURL!=null?'Drag to deck':'Loading stream'}"
+			   borderStyle="solid"
+			   borderColor="#3E78A1"
+			   id="itemHandle">
+		<mx:mouseDown>
+			<![CDATA[
+				if (data.videoStreamURL == null)
+				{
+					return;
+				}
+				var dragData:DragSource=new DragSource();
+				var bitmap:Bitmap=new Bitmap(ImageSnapshot.captureBitmapData(videoImage));
+				var proxy:Image=new Image();
+				bitmap.alpha=.5;
+				proxy.source=bitmap;
+				dragData.addData(YouTubeSource(data), "tubeSource");
+				DragManager.doDrag(this, dragData, event, proxy, 31, 10);
+			]]>
+		</mx:mouseDown>
+	</mx:Canvas>
+</mx:Canvas>

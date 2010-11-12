@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+		   width="100"
+		   height="18"
+		   backgroundColor="#000000"
+		   borderStyle="solid"
+		   borderColor="#B7BABC"
+		   backgroundAlpha="0.75">
+	<mx:Script>
+		<![CDATA[
+			import mx.managers.DragManager;
+			[Bindable]
+			/*
+			   @uublic
+			 */
+			public var value:String;
+			private var changing:Boolean;
+		]]>
+	</mx:Script>
+	<mx:Label x="0"
+			  text="{label}"
+			  color="#FFFFFF"
+			  width="50"
+			  fontSize="9"
+			  bottom="-1"
+			  top="0"
+			  id="inputLabel"/>
+	<mx:Canvas bottom="0"
+			   top="0"
+			   right="0"
+			   left="50">
+		<mx:Label text="{value}"
+				  color="#FFFFFF"
+				  fontSize="9"
+				  top="0"
+				  bottom="0"
+				  left="0"
+				  right="0"
+				  textAlign="center"/>
+		<mx:Canvas x="0"
+				   width="47"
+				   top="0"
+				   bottom="0">
+				   <mx:mouseDown>
+				   	<![CDATA[
+				   	trace("got");
+				   	]]>
+				   </mx:mouseDown>
+			<mx:mouseMove>
+				<![CDATA[
+					if(MouseEvent(event).buttonDown) {
+						trace("go");
+					}
+				]]>
+			</mx:mouseMove>
+		</mx:Canvas>
+	</mx:Canvas>
+
+</mx:Canvas>

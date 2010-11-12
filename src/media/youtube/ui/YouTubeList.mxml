@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+		   width="375"
+		   height="264"
+		   creationComplete="init();"
+		   currentState="{YouTube.currentState}">
+	<mx:Script>
+		<![CDATA[
+			import media.youtube.YouTube;
+			public function init():void
+			{
+				searchVideosKeywords.setFocus();
+				YouTube.setPool(this);
+			}
+		]]>
+	</mx:Script>
+	<mx:states>
+		<mx:State name="searching">
+			<mx:SetProperty target="{searchVideosBtn}"
+							name="enabled"
+							value="false"/>
+			<mx:SetProperty target="{searchVideosKeywords}"
+							name="enabled"
+							value="false"/>
+			<mx:SetProperty name="height"
+							value="298"/>
+			<mx:SetStyle name="backgroundColor"/>
+		</mx:State>
+		<mx:State name="browsing"
+				  basedOn="searching">
+			<mx:SetProperty target="{searchVideosKeywords}"
+							name="enabled"
+							value="true"/>
+			<mx:SetProperty target="{searchVideosBtn}"
+							name="enabled"
+							value="true"/>
+			<mx:SetStyle target="{tilelist1}"
+						 name="bottom"
+						 value="10"/>
+			<mx:SetProperty target="{tilelist1}"
+							name="enabled"
+							value="true"/>
+		</mx:State>
+	</mx:states>
+	<mx:TextInput y="10"
+				  id="searchVideosKeywords"
+				  left="83"
+				  right="10"
+				  enter="YouTube.searchVideos(searchVideosKeywords.text);"
+				  text="major tom"/>
+	<mx:Button y="10"
+			   label="Search"
+			   id="searchVideosBtn"
+			   x="10"
+			   click="YouTube.searchVideos(searchVideosKeywords.text);">
+	</mx:Button>
+	<mx:TileList enabled="false"
+				 id="tilelist1"
+				 top="40"
+				 bottom="10"
+				 left="10"
+				 right="10"
+				 itemRenderer="media.youtube.ui.YouTubeListItem"
+				 dataProvider="{YouTube.youtubeEntries}"
+				 direction="horizontal"
+				 allowMultipleSelection="false"
+				 columnCount="1">
+
+		<mx:dragOver>
+			<![CDATA[
+				event.preventDefault();
+			]]>
+		</mx:dragOver>
+	</mx:TileList>
+</mx:Canvas>

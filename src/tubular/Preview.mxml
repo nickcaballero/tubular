@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Window xmlns:mx="http://www.adobe.com/2006/mxml"
+		   layout="absolute"
+		   backgroundColor="#000000"
+		   alwaysInFront="true"
+		   showStatusBar="false"
+		   showTitleBar="false"
+		   resizable="false"
+		   showGripper="false"
+		   maximizable="false"
+		   minimizable="false"
+		   height="240"
+		   width="320"
+		   creationComplete="Tubular.comp.addEventListener(Event.ENTER_FRAME, updatePreview);">
+	<mx:Script>
+		<![CDATA[
+			import mx.events.ResizeEvent;
+			import tube.TubeHandler;
+			[Bindable]
+			private var previewBitmap:Bitmap=new Bitmap(TubeHandler.basicBitmapData());
+
+			public function updatePreview(event:Event):void
+			{
+				previewBitmap.bitmapData.copyPixels(TubularComp.composite, TubeHandler.RECT, TubeHandler.ORIGIN);
+			}
+		]]>
+	</mx:Script>
+	<mx:Image id="previewContainer"
+			  scaleContent="true"
+			  source="{previewBitmap}"
+			  opaqueBackground="0x000000"
+			  left="0"
+			  right="0"
+			  top="0"
+			  bottom="0"/>
+</mx:Window>

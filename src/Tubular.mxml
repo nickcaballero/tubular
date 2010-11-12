@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml"
+						layout="absolute"
+						xmlns:ns1="tube.*"
+						height="581" frameRate="30">
+	<mx:Script>
+		<![CDATA[
+			import tubular.Preview;
+			import tubular.TubularComp;
+			import tube.TubeHandler;
+			import tube.TubeControl;
+			import tubular.Pool;
+			import media.youtube.ui.YouTubeList;
+
+			public static var comp:TubularComp=new TubularComp();
+
+			public static function appendTube(tube:TubeControl):void
+			{
+				application.tubeList.addChild(tube);
+			}
+
+			public static function removeTube(tube:TubeControl):void
+			{
+				application.tubeList.removeChild(tube);
+			}
+		]]>
+	</mx:Script>
+	<mx:Button x="53"
+			   label="Search Youtube"
+			   bottom="10">
+		<mx:click>
+			<![CDATA[
+				var youtubePool:Pool=new Pool();
+				youtubePool.currentState='youtube';
+				youtubePool.open(true);
+			]]>
+		</mx:click>
+	</mx:Button>
+	<mx:Canvas bottom="40"
+			   top="10"
+			   left="10"
+			   right="10"
+			   id="tubeList">
+	</mx:Canvas>
+	<mx:Button x="10"
+			   label="+"
+			   width="35"
+			   click="TubeHandler.createTubeHandler();"
+			   bottom="10"/>
+	<mx:Button x="177"
+			   label="Open Preview" bottom="10">
+		<mx:click>
+			<![CDATA[
+				var preview:Preview = new Preview();
+				preview.resizable=false;
+				preview.open(true);
+			]]>
+		</mx:click>
+	</mx:Button>
+	<mx:Style source="ui/styles.css"/>
+
+</mx:WindowedApplication>
